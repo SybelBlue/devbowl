@@ -44,7 +44,7 @@ class RoomsController < ApplicationController
     )
 
     # Broadcast the question to everyone
-    ActionCable.server.broadcast_to @room, {
+    RoomChannel.broadcast_to @room, {
       type: 'question_started',
       question: {
         id: first_question.id,
@@ -68,7 +68,7 @@ class RoomsController < ApplicationController
     if next_question
       game.update!(current_question: next_question, status: 'reading')
 
-      ActionCable.server.broadcast_to @room, {
+      RoomChannel.broadcast_to @room, {
         type: 'question_started',
         question: {
           id: next_question.id,
