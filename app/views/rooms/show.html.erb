@@ -1,0 +1,30 @@
+<div data-room-id="<%= @room.id %>">
+  <h1>Room: <%= @room.name %></h1>
+
+  <div id="game-area">
+    <div id="question-content">
+      <!-- Question content goes here -->
+    </div>
+
+    <div id="buzz-indicator">
+      <!-- Shows who buzzed -->
+    </div>
+
+    <button id="buzz-button" onclick="window.roomChannel.buzzIn()">
+      BUZZ IN!
+    </button>
+
+    <div id="answer-form" style="display: none;">
+      <input type="text" id="answer-input">
+      <button onclick="submitAnswer()">Submit Answer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function submitAnswer() {
+    const answer = document.getElementById('answer-input').value
+    const buzzId = document.getElementById('answer-form').dataset.buzzId
+    window.roomChannel.submitAnswer(buzzId, answer)
+  }
+</script>
