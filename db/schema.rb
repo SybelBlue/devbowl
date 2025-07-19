@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_19_032207) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_19_035518) do
   create_table "buzzs", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "game_id", null: false
@@ -27,11 +27,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_19_032207) do
 
   create_table "games", force: :cascade do |t|
     t.integer "room_id", null: false
-    t.integer "current_question_id", null: false
     t.string "status"
     t.string "current_reader"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "current_question_id"
     t.index ["current_question_id"], name: "index_games_on_current_question_id"
     t.index ["room_id"], name: "index_games_on_room_id"
   end
@@ -74,7 +74,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_19_032207) do
   add_foreign_key "buzzs", "games"
   add_foreign_key "buzzs", "questions"
   add_foreign_key "buzzs", "users"
-  add_foreign_key "games", "current_questions"
+  add_foreign_key "games", "questions", column: "current_question_id"
   add_foreign_key "games", "rooms"
   add_foreign_key "prompts", "questions"
   add_foreign_key "users", "rooms"
