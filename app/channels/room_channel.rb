@@ -3,18 +3,22 @@ class RoomChannel < ApplicationCable::Channel
     room = Room.find(params[:room_id])
     stream_for room
 
+    logger.info "User #{current_user.name} subscribed to room #{room.name}"
+
     # Add user to room if they're not already there
     current_user.update(room: room) if current_user.room != room
 
     # Broadcast that someone joined
     broadcast_to room, {
-      type: 'user_joined',
+      type: "user_joined",
       user: current_user.name,
       users_count: room.users.count
     }
   end
 
   def unsubscribed
+    logger.info "User #{current_user&.name} unsubscribed"
+
     # Remove user from room
     current_user&.update(room: nil)
   end
@@ -23,9 +27,11 @@ class RoomChannel < ApplicationCable::Channel
     room = Room.find(params[:room_id])
     game = room.current_game
 
+    logger.info "Getting current state for room #{room.name}, game: #{game&.id}"
+
     if game&.current_question
       broadcast_to room, {
-        type: 'question_started',
+        type: "question_started",
         question: {
           id: game.current_question.id,
           title: game.current_question.title,
@@ -50,39 +56,39 @@ class RoomChannel < ApplicationCable::Channel
     )
 
     # Pause the game
-    game.update!(status: 'paused')
+    game.update!(status: "paused")
 
     # Broadcast to everyone that someone buzzed
     broadcast_to room, {
-      type: 'buzz_received',
+      type: "buzz_received",
       user: current_user.name,
       buzz_id: buzz.id,
-      game_status: 'paused'
+      game_status: "paused"
     }
   end
 
   def submit_answer(data)
     room = Room.find(params[:room_id])
     game = room.current_game
-    buzz = game.buzzes.find(data['buzz_id'])
+    buzz = game.buzzes.find(data["buzz_id"])
 
     return unless buzz.user == current_user
 
-    buzz.update!(answer: data['answer'])
+    buzz.update!(answer: data["answer"])
 
     # Here you'd implement answer checking logic
     # For now, let's assume all answers are correct
     buzz.update!(correct: true)
 
     # Resume or advance the game
-    game.update!(status: 'reading')
+    game.update!(status: "reading")
 
     broadcast_to room, {
-      type: 'answer_submitted',
+      type: "answer_submitted",
       user: current_user.name,
       answer: buzz.answer,
       correct: buzz.correct,
-      game_status: 'reading'
+      game_status: "reading"
     }
   end
 end

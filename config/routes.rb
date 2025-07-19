@@ -11,7 +11,7 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
-  root 'rooms#index'
+  root "rooms#index"
 
   resources :rooms do
     member do
@@ -23,5 +23,5 @@ Rails.application.routes.draw do
 
   resources :users, only: %i[create]
 
-  mount ActionCable.server => '/cable'
+  mount ActionCable.server => "/cable"
 end

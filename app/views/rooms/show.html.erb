@@ -1,12 +1,17 @@
-<div data-room-id="<%= @room.id %>" data-current-game="<%= @current_game&.id %>">
+<div data-room-id="<%= @room.id %>">
   <h1>Room: <%= @room.name %> (Code: <%= @room.code %>)</h1>
 
   <% if current_user %>
-    <p>Welcome, <%= current_user.name %>!</p>
+    <div class="room-info">
+      <p>Welcome, <%= current_user.name %>!</p>
+      <div id="connection-status" class="connection-status connecting">Connecting...</div>
+      <div id="users-count">Users in room: <%= @room.users.count %></div>
+    </div>
 
     <div class="game-controls">
       <%= button_to "Start Game", start_game_room_path(@room), method: :post %>
       <%= button_to "Next Question", next_question_room_path(@room), method: :post %>
+      <button onclick="window.reconnectToRoom()" id="reconnect-btn">Reconnect</button>
     </div>
 
     <div id="game-area">
@@ -24,8 +29,7 @@
         <!-- Shows who buzzed -->
       </div>
 
-      <button id="buzz-button" onclick="window.roomChannel && window.roomChannel.buzzIn()"
-              <%= @current_game&.current_question ? '' : 'disabled' %>>
+      <button id="buzz-button" onclick="window.roomChannel.buzzIn()" disabled>
         BUZZ IN!
       </button>
 
@@ -61,6 +65,30 @@
 </div>
 
 <% if current_user %>
+<style>
+  .connection-status {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin: 5px 0;
+  }
+
+  .connection-status.connected {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .connection-status.disconnected {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
+  .connection-status.connecting {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+</style>
+
 <script>
   function submitAnswer() {
     const answer = document.getElementById('answer-input').value
