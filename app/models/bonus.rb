@@ -1,0 +1,2 @@
+class Bonus < Prompt
+end

@@ -1,0 +1,2 @@
+class TossUp < Prompt
+end

@@ -7,3 +7,23 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+
+question = Question.create!(
+  title: "Sample Science Question",
+  category: "Science",
+)
+
+TossUp.create!(
+  question: question,
+  format: "MultipleChoice",
+  content: "What is the chemical symbol for gold?",
+  answer: "X",
+  answer_choices: ["Silver", "Gold", "Au", "Go"]
+)
+
+Bonus.create!(
+  question: question,
+  format: "ShortAnswer",
+  content: "Name three noble gases.",
+  answer: "Helium, Neon, Argon"
+)
