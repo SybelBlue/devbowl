@@ -8,22 +8,37 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-question = Question.create!(
+# Clear existing data
+Question.destroy_all
+Room.destroy_all
+
+# Create sample questions
+question1 = Question.create!(
   title: "Sample Science Question",
   category: "Science",
 )
 
 TossUp.create!(
-  question: question,
+  question: question1,
   format: "MultipleChoice",
   content: "What is the chemical symbol for gold?",
   answer: "X",
-  answer_choices: ["Silver", "Gold", "Au", "Go"]
+  answer_choices: ["Ag", "Au", "Go", "Gd"]
 )
 
-Bonus.create!(
-  question: question,
-  format: "ShortAnswer",
-  content: "Name three noble gases.",
-  answer: "Helium, Neon, Argon"
+question2 = Question.create!(
+  title: "Sample History Question",
+  category: "History",
 )
+
+TossUp.create!(
+  question: question2,
+  format: "ShortAnswer",
+  content: "Who was the first President of the United States?",
+  answer: "George Washington"
+)
+
+# Create a sample room
+Room.create!(name: "Test Room", code: "TEST01")
+
+puts "Sample data created!"

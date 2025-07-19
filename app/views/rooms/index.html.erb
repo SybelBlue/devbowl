@@ -1,0 +1,14 @@
+<h1>Quiz Bowl Rooms</h1>
+
+<%= link_to "Create New Room", new_room_path, class: "btn btn-primary" %>
+
+<div class="rooms-list">
+  <% @rooms.each do |room| %>
+    <div class="room-card">
+      <h3><%= room.name %></h3>
+      <p>Code: <%= room.code %></p>
+      <p>Users: <%= room.users.count %></p>
+      <%= link_to "Join Room", room_path(room) %>
+    </div>
+  <% end %>
+</div>

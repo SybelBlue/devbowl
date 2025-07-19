@@ -1,0 +1,12 @@
+<h1>Create New Room</h1>
+
+<%= form_with model: @room do |form| %>
+  <div>
+    <%= form.label :name %>
+    <%= form.text_field :name %>
+  </div>
+
+  <%= form.submit "Create Room" %>
+<% end %>
+
+<%= link_to "Back to Rooms", rooms_path %>

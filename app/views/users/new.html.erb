@@ -1,0 +1,12 @@
+<h1>Join Room</h1>
+
+<%= form_with model: @user do |form| %>
+  <%= form.hidden_field :room_id, value: @room_id %>
+
+  <div>
+    <%= form.label :name, "Your Name" %>
+    <%= form.text_field :name %>
+  </div>
+
+  <%= form.submit "Join Room" %>
+<% end %>
