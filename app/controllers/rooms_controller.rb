@@ -10,6 +10,8 @@ class RoomsController < ApplicationController
     unless current_user
       @user = User.new
     end
+
+    @current_game = @room.current_game
   end
 
   def join
@@ -36,23 +38,21 @@ class RoomsController < ApplicationController
   def start_game
     @room = Room.find(params[:id])
 
+    # End any existing games first
+    @room.games.where(status: [ "reading", "paused" ]).update_all(status: "completed")
+
     # Create a new game with the first question
     first_question = Question.first
-    game = @room.games.create!(
-      status: 'reading',
+
+    unless first_question
+      redirect_to @room, alert: "No questions available. Please add some questions first."
+      return
+    end
+
+    _game = @room.games.create!(
+      status: "reading",
       current_question: first_question
     )
-
-    # Broadcast the question to everyone
-    RoomChannel.broadcast_to @room, {
-      type: 'question_started',
-      question: {
-        id: first_question.id,
-        title: first_question.title,
-        toss_up: first_question.toss_up&.content,
-        format: first_question.toss_up&.format
-      }
-    }
 
     redirect_to @room
   end
@@ -61,25 +61,21 @@ class RoomsController < ApplicationController
     @room = Room.find(params[:id])
     game = @room.current_game
 
-    # For now, just get the next question (you'll want better logic later)
-    current_id = game.current_question&.id || 0
-    next_question = Question.where('id > ?', current_id).first
-
-    if next_question
-      game.update!(current_question: next_question, status: 'reading')
-
-      RoomChannel.broadcast_to @room, {
-        type: 'question_started',
-        question: {
-          id: next_question.id,
-          title: next_question.title,
-          toss_up: next_question.toss_up&.content,
-          format: next_question.toss_up&.format
-        }
-      }
+    unless game
+      redirect_to @room, alert: "No active game found. Please start a game first."
+      return
     end
 
-    redirect_to @room
+    # For now, just get the next question
+    current_id = game.current_question&.id || 0
+    next_question = Question.where("id > ?", current_id).first
+
+    if next_question
+      game.update!(current_question: next_question, status: "reading")
+      redirect_to @room, notice: "Next question loaded!"
+    else
+      redirect_to @room, alert: "No more questions available!"
+    end
   end
 
   private

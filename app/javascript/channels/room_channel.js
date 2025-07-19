@@ -7,6 +7,8 @@ if (roomElement) {
     {
       connected() {
         console.log("Connected to room")
+        // Check if there's already an active game when we connect
+        this.checkForActiveGame()
       },
 
       disconnected() {
@@ -28,6 +30,11 @@ if (roomElement) {
         }
       },
 
+      checkForActiveGame() {
+        // Send a request to check current game state
+        this.perform('get_current_state')
+      },
+
       buzzIn() {
         this.perform('buzz_in', {})
       },
@@ -37,6 +44,7 @@ if (roomElement) {
       },
 
       handleQuestionStarted(data) {
+        console.log("Showing question:", data.question)
         const questionContent = document.getElementById('question-content')
         questionContent.innerHTML = `
           <h3>${data.question.title}</h3>
@@ -44,7 +52,10 @@ if (roomElement) {
           <p><em>Format: ${data.question.format}</em></p>
         `
 
-        document.getElementById('buzz-button').disabled = false
+        const buzzButton = document.getElementById('buzz-button')
+        if (buzzButton) {
+          buzzButton.disabled = false
+        }
         document.getElementById('buzz-indicator').style.display = 'none'
       },
 

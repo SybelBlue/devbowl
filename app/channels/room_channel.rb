@@ -19,6 +19,23 @@ class RoomChannel < ApplicationCable::Channel
     current_user&.update(room: nil)
   end
 
+  def get_current_state
+    room = Room.find(params[:room_id])
+    game = room.current_game
+
+    if game&.current_question
+      broadcast_to room, {
+        type: 'question_started',
+        question: {
+          id: game.current_question.id,
+          title: game.current_question.title,
+          toss_up: game.current_question.toss_up&.content,
+          format: game.current_question.toss_up&.format
+        }
+      }
+    end
+  end
+
   def buzz_in(data)
     room = Room.find(params[:room_id])
     game = room.current_game

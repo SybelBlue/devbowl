@@ -1,7 +1,7 @@
 class Room < ApplicationRecord
   has_many :users, dependent: :destroy
-  has_one :current_game, -> { where(status: 'active') }, class_name: 'Game'
   has_many :games, dependent: :destroy
+  has_one :current_game, -> { where(status: ['reading', 'paused']) }, class_name: 'Game'
 
   validates :name, presence: true
   validates :code, presence: true, uniqueness: true

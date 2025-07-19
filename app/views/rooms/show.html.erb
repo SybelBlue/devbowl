@@ -1,4 +1,4 @@
-<div data-room-id="<%= @room.id %>">
+<div data-room-id="<%= @room.id %>" data-current-game="<%= @current_game&.id %>">
   <h1>Room: <%= @room.name %> (Code: <%= @room.code %>)</h1>
 
   <% if current_user %>
@@ -11,14 +11,21 @@
 
     <div id="game-area">
       <div id="question-content">
-        <p>Click "Start Game" to begin!</p>
+        <% if @current_game&.current_question %>
+          <h3><%= @current_game.current_question.title %></h3>
+          <p><strong>Toss-up:</strong> <%= @current_game.current_question.toss_up&.content %></p>
+          <p><em>Format: <%= @current_game.current_question.toss_up&.format %></em></p>
+        <% else %>
+          <p>Click "Start Game" to begin!</p>
+        <% end %>
       </div>
 
       <div id="buzz-indicator" style="display: none;">
         <!-- Shows who buzzed -->
       </div>
 
-      <button id="buzz-button" onclick="window.roomChannel.buzzIn()" disabled>
+      <button id="buzz-button" onclick="window.roomChannel && window.roomChannel.buzzIn()"
+              <%= @current_game&.current_question ? '' : 'disabled' %>>
         BUZZ IN!
       </button>
 
@@ -27,6 +34,20 @@
         <button onclick="submitAnswer()">Submit Answer</button>
       </div>
     </div>
+
+    <!-- Hidden data for JavaScript -->
+    <script type="application/json" id="current-question-data">
+      <% if @current_game&.current_question %>
+        {
+          "id": <%= @current_game.current_question.id %>,
+          "title": "<%= j(@current_game.current_question.title) %>",
+          "toss_up": "<%= j(@current_game.current_question.toss_up&.content) %>",
+          "format": "<%= j(@current_game.current_question.toss_up&.format) %>"
+        }
+      <% else %>
+        null
+      <% end %>
+    </script>
   <% else %>
     <!-- Simple name entry form -->
     <div class="join-form">
@@ -44,7 +65,9 @@
   function submitAnswer() {
     const answer = document.getElementById('answer-input').value
     const buzzId = document.getElementById('answer-form').dataset.buzzId
-    window.roomChannel.submitAnswer(buzzId, answer)
+    if (window.roomChannel) {
+      window.roomChannel.submitAnswer(buzzId, answer)
+    }
   }
 </script>
 <% end %>
