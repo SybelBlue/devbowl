@@ -14,10 +14,44 @@
       <div class="prompt-section toss-up">
         <div class="prompt-header">
           <h3>Toss Up</h3>
-          <span class="prompt-type-badge toss-up-badge">Toss Up</span>
+          <div class="prompt-badges">
+            <span class="prompt-type-badge toss-up-badge">Toss Up</span>
+            <% if @question.toss_up.format %>
+              <span class="format-badge <%= @question.toss_up.format.downcase %>-badge">
+                <%= format_display_name(@question.toss_up.format) %>
+              </span>
+            <% end %>
+          </div>
         </div>
+
         <div class="prompt-content">
-          <%= simple_format(@question.toss_up.content) if @question.toss_up.content %>
+          <div class="question-text">
+            <h4>Question:</h4>
+            <%= simple_format(@question.toss_up.content) if @question.toss_up.content %>
+          </div>
+
+          <% if @question.toss_up.format == 'MultipleChoice' && @question.toss_up.answer_choices.present? %>
+            <div class="answer-choices">
+              <h4>Choices:</h4>
+              <div class="choices-list">
+                <% ['W', 'X', 'Y', 'Z'].each_with_index do |letter, index| %>
+                  <div class="choice-item <%= 'correct' if @question.toss_up.answer == letter %>">
+                    <strong><%= letter %>.</strong> <%= @question.toss_up.answer_choices[index] %>
+                    <% if @question.toss_up.answer == letter %>
+                      <span class="correct-indicator">✓ Correct</span>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% else %>
+            <div class="answer-section">
+              <h4>Answer:</h4>
+              <div class="answer-text">
+                <%= simple_format(@question.toss_up.answer) if @question.toss_up.answer %>
+              </div>
+            </div>
+          <% end %>
         </div>
       </div>
     <% end %>
@@ -26,10 +60,44 @@
       <div class="prompt-section bonus">
         <div class="prompt-header">
           <h3>Bonus</h3>
-          <span class="prompt-type-badge bonus-badge">Bonus</span>
+          <div class="prompt-badges">
+            <span class="prompt-type-badge bonus-badge">Bonus</span>
+            <% if @question.bonus.format %>
+              <span class="format-badge <%= @question.bonus.format.downcase %>-badge">
+                <%= format_display_name(@question.bonus.format) %>
+              </span>
+            <% end %>
+          </div>
         </div>
+
         <div class="prompt-content">
-          <%= simple_format(@question.bonus.content) if @question.bonus.content %>
+          <div class="question-text">
+            <h4>Question:</h4>
+            <%= simple_format(@question.bonus.content) if @question.bonus.content %>
+          </div>
+
+          <% if @question.bonus.format == 'MultipleChoice' && @question.bonus.answer_choices.present? %>
+            <div class="answer-choices">
+              <h4>Choices:</h4>
+              <div class="choices-list">
+                <% ['W', 'X', 'Y', 'Z'].each_with_index do |letter, index| %>
+                  <div class="choice-item <%= 'correct' if @question.bonus.answer == letter %>">
+                    <strong><%= letter %>.</strong> <%= @question.bonus.answer_choices[index] %>
+                    <% if @question.bonus.answer == letter %>
+                      <span class="correct-indicator">✓ Correct</span>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% else %>
+            <div class="answer-section">
+              <h4>Answer:</h4>
+              <div class="answer-text">
+                <%= simple_format(@question.bonus.answer) if @question.bonus.answer %>
+              </div>
+            </div>
+          <% end %>
         </div>
       </div>
     <% end %>
@@ -68,7 +136,7 @@
 
 <style>
   .question-show {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
   }
@@ -105,8 +173,8 @@
     background: white;
     border: 1px solid #e1e5e9;
     border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 25px;
+    padding: 30px;
+    margin-bottom: 30px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
 
@@ -122,16 +190,23 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f3f4;
   }
 
   .prompt-header h3 {
     margin: 0;
     color: #495057;
-    font-size: 1.4em;
+    font-size: 1.5em;
   }
 
-  .prompt-type-badge {
+  .prompt-badges {
+    display: flex;
+    gap: 10px;
+  }
+
+  .prompt-type-badge, .format-badge {
     padding: 6px 14px;
     border-radius: 20px;
     font-size: 12px;
@@ -152,18 +227,99 @@
     border: 1px solid #b6dfea;
   }
 
+  .format-badge {
+    background-color: #e2e3e5;
+    color: #383d41;
+    border: 1px solid #d6d8db;
+  }
+
+  .multiplechoice-badge {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+  }
+
+  .shortanswer-badge {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  .umactually-badge {
+    background-color: #fce4ec;
+    color: #880e4f;
+    border: 1px solid #f8bbd9;
+  }
+
   .prompt-content {
     font-size: 16px;
     line-height: 1.6;
     color: #333;
   }
 
-  .prompt-content p {
+  .question-text, .answer-section, .answer-choices {
+    margin-bottom: 25px;
+  }
+
+  .question-text h4, .answer-section h4, .answer-choices h4 {
+    color: #495057;
+    font-size: 1.1em;
+    margin: 0 0 12px 0;
+    font-weight: 600;
+  }
+
+  .question-text p, .answer-text p {
     margin: 0 0 15px 0;
   }
 
-  .prompt-content p:last-child {
+  .question-text p:last-child, .answer-text p:last-child {
     margin-bottom: 0;
+  }
+
+  .choices-list {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+  }
+
+  .choice-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e1e5e9;
+    position: relative;
+  }
+
+  .choice-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .choice-item.correct {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+  }
+
+  .choice-item strong {
+    margin-right: 10px;
+    color: #495057;
+    min-width: 20px;
+  }
+
+  .correct-indicator {
+    margin-left: auto;
+    color: #28a745;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .answer-text {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
   }
 
   .empty-prompts {
@@ -283,7 +439,11 @@
     .prompt-header {
       flex-direction: column;
       align-items: flex-start;
-      gap: 10px;
+      gap: 15px;
+    }
+
+    .prompt-badges {
+      flex-wrap: wrap;
     }
 
     .meta-row {
@@ -293,6 +453,16 @@
 
     .meta-row strong {
       min-width: auto;
+    }
+
+    .choice-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .correct-indicator {
+      margin-left: 0;
+      margin-top: 8px;
     }
   }
 </style>

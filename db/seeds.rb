@@ -23,7 +23,14 @@ TossUp.create!(
   format: "MultipleChoice",
   content: "What is the chemical symbol for gold?",
   answer: "X",
-  answer_choices: ["Ag", "Au", "Go", "Gd"]
+  answer_choices: [ "Ag", "Au", "Go", "Gd" ]
+)
+
+Bonus.create!(
+  question: question1,
+  format: "ShortAnswer",
+  content: "What is the alchemical symbol for Gold?",
+  answer: "☉ *or* Sun *or* Circle with a Dot inside it"
 )
 
 question2 = Question.create!(
