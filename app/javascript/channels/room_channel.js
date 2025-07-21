@@ -3,8 +3,12 @@ import consumer from "channels/consumer";
 console.log("Room channel script loaded");
 console.log("Consumer:", consumer);
 
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 5;
+let roomChannel = null;
+
 function connect() {
-  const roomElement = document.querySelector("[data-room-id]");
+  const roomElement = document.getElementById("room-top");
 
   if (!roomElement) {
     console.log("❌ No room element found");
@@ -13,10 +17,6 @@ function connect() {
   console.log("Room element found:", roomElement);
   const roomId = roomElement.dataset.roomId;
   console.log("Room ID:", roomId);
-
-  let roomChannel = null;
-  let reconnectAttempts = 0;
-  const maxReconnectAttempts = 5;
 
   function createRoomChannel() {
     console.log("Creating room channel...");
@@ -222,7 +222,7 @@ window.reconnectToRoom = () => {
   connect();
 };
 
-if (!connect()) {
+if (connect()) {} else {
   reconnectAttempts = 1;
   if (reconnectAttempts < maxReconnectAttempts) {
     reconnectAttempts++;

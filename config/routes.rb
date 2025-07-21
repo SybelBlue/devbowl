@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   resources :rooms do
     member do
       post :start_game
+      post :end_game
       post :next_question
       post :join
     end

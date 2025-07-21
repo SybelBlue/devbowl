@@ -57,6 +57,12 @@ class RoomsController < ApplicationController
     redirect_to @room
   end
 
+  def end_game
+    @room = Room.find(params[:id])
+    @room.games.where(status: [ "reading", "paused" ]).update_all(status: "completed")
+    redirect_to @room
+  end
+
   def next_question
     @room = Room.find(params[:id])
     game = @room.current_game
