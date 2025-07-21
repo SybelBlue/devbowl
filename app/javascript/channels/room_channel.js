@@ -1,13 +1,13 @@
 import consumer from "channels/consumer";
 
-console.log("Room channel script loaded");
+console.log("Room channel script loaded", Date.now());
 console.log("Consumer:", consumer);
 
 let reconnectAttempts = 0;
 const maxReconnectAttempts = 5;
 let roomChannel = null;
 
-function connect() {
+window.connect = function() {
   const roomElement = document.getElementById("room-top");
 
   if (!roomElement) {
@@ -205,7 +205,7 @@ function connect() {
   console.log("Creating initial connection...");
   roomChannel = createRoomChannel();
 
-  addEventListener("beforeunload", () => {
+  window.addEventListener("beforeunload", () => {
     roomChannel.unsubscribe();
     roomChannel = null;
   });
@@ -213,7 +213,6 @@ function connect() {
   // Make it available globally
   window.roomChannel = roomChannel;
 
-  console.log("Room channel setup complete");
   return true;
 }
 
@@ -222,7 +221,7 @@ window.reconnectToRoom = () => {
   connect();
 };
 
-if (connect()) {} else {
+if (!connect()) {
   reconnectAttempts = 1;
   if (reconnectAttempts < maxReconnectAttempts) {
     reconnectAttempts++;

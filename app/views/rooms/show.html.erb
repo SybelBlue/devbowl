@@ -10,11 +10,11 @@
 
     <div class="game-controls">
       <% if @current_game %>
+        <%= button_to "Next Question", next_question_room_path(@room), method: :post %>
         <%= button_to "End Game", end_game_room_path(@room), method: :post %>
       <% else %>
         <%= button_to "Start Game", start_game_room_path(@room), method: :post %>
       <% end %>
-      <%= button_to "Next Question", next_question_room_path(@room), method: :post %>
       <button onclick="window.reconnectToRoom()" id="reconnect-btn">Reconnect</button>
     </div>
 
@@ -99,6 +99,13 @@
     const buzzId = document.getElementById('answer-form').dataset.buzzId
     if (window.roomChannel) {
       window.roomChannel.submitAnswer(buzzId, answer)
+    }
+  }
+  if (window.roomChannel) {
+    const statusElement = document.getElementById("connection-status");
+    if (statusElement) {
+      statusElement.textContent = "Connected";
+      statusElement.className = "connection-status connected";
     }
   }
 </script>
