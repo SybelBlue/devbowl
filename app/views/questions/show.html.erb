@@ -1,0 +1,298 @@
+<% content_for :title, @question.title %>
+
+<div class="question-show">
+  <div class="page-header">
+    <h1><%= @question.title %></h1>
+    <div class="header-actions">
+      <%= link_to 'Edit', edit_question_path(@question), class: "btn btn-primary" %>
+      <%= link_to 'Back to Questions', questions_path, class: "btn btn-outline-secondary" %>
+    </div>
+  </div>
+
+  <div class="question-content">
+    <% if @question.toss_up.present? %>
+      <div class="prompt-section toss-up">
+        <div class="prompt-header">
+          <h3>Toss Up</h3>
+          <span class="prompt-type-badge toss-up-badge">Toss Up</span>
+        </div>
+        <div class="prompt-content">
+          <%= simple_format(@question.toss_up.content) if @question.toss_up.content %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @question.bonus.present? %>
+      <div class="prompt-section bonus">
+        <div class="prompt-header">
+          <h3>Bonus</h3>
+          <span class="prompt-type-badge bonus-badge">Bonus</span>
+        </div>
+        <div class="prompt-content">
+          <%= simple_format(@question.bonus.content) if @question.bonus.content %>
+        </div>
+      </div>
+    <% end %>
+
+    <% unless @question.toss_up.present? || @question.bonus.present? %>
+      <div class="empty-prompts">
+        <p>No prompts have been added to this question yet.</p>
+        <%= link_to 'Add Prompts', edit_question_path(@question), class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="question-meta">
+    <div class="meta-row">
+      <strong>Created:</strong>
+      <span><%= @question.created_at.strftime("%B %d, %Y at %l:%M %p") %></span>
+    </div>
+    <% if @question.updated_at != @question.created_at %>
+      <div class="meta-row">
+        <strong>Last Updated:</strong>
+        <span><%= @question.updated_at.strftime("%B %d, %Y at %l:%M %p") %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="danger-zone">
+    <%= link_to 'Delete Question',
+        question_path(@question),
+        method: :delete,
+        data: {
+          confirm: 'Are you sure? This will permanently delete the question and all its prompts.'
+        },
+        class: "btn btn-danger" %>
+  </div>
+</div>
+
+<style>
+  .question-show {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e1e5e9;
+  }
+
+  .page-header h1 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 2.2em;
+    flex-grow: 1;
+    margin-right: 20px;
+    line-height: 1.2;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .question-content {
+    margin-bottom: 40px;
+  }
+
+  .prompt-section {
+    background: white;
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .prompt-section.toss-up {
+    border-left: 4px solid #28a745;
+  }
+
+  .prompt-section.bonus {
+    border-left: 4px solid #007bff;
+  }
+
+  .prompt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .prompt-header h3 {
+    margin: 0;
+    color: #495057;
+    font-size: 1.4em;
+  }
+
+  .prompt-type-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .toss-up-badge {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  .bonus-badge {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #b6dfea;
+  }
+
+  .prompt-content {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+  }
+
+  .prompt-content p {
+    margin: 0 0 15px 0;
+  }
+
+  .prompt-content p:last-child {
+    margin-bottom: 0;
+  }
+
+  .empty-prompts {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 2px dashed #dee2e6;
+  }
+
+  .empty-prompts p {
+    color: #6c757d;
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  .question-meta {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+  }
+
+  .meta-row {
+    display: flex;
+    margin-bottom: 8px;
+  }
+
+  .meta-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .meta-row strong {
+    min-width: 140px;
+    color: #495057;
+  }
+
+  .meta-row span {
+    color: #6c757d;
+  }
+
+  .danger-zone {
+    border-top: 1px solid #e1e5e9;
+    padding-top: 20px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    border: 2px solid;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  }
+
+  .btn-outline-secondary {
+    background-color: transparent;
+    border-color: #6c757d;
+    color: #6c757d;
+  }
+
+  .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+  }
+
+  .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+  }
+
+  @media (max-width: 768px) {
+    .question-show {
+      padding: 15px;
+    }
+
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .page-header h1 {
+      margin-right: 0;
+      font-size: 1.8em;
+    }
+
+    .header-actions {
+      width: 100%;
+    }
+
+    .btn {
+      flex: 1;
+      text-align: center;
+    }
+
+    .prompt-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .meta-row {
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .meta-row strong {
+      min-width: auto;
+    }
+  }
+</style>

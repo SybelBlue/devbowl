@@ -1,0 +1,220 @@
+<%= form_with(model: question, local: true, html: { class: "question-form" }) do |form| %>
+  <% if question.errors.any? %>
+    <div id="error_explanation" class="alert alert-danger">
+      <h4><%= pluralize(question.errors.count, "error") %> prohibited this question from being saved:</h4>
+      <ul>
+        <% question.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :title, class: "form-label" %>
+    <%= form.text_field :title, class: "form-control #{'is-invalid' if question.errors[:title].any?}", placeholder: "Enter question title" %>
+    <% if question.errors[:title].any? %>
+      <div class="invalid-feedback">
+        <%= question.errors[:title].first %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="prompts-section">
+    <h4>Prompts</h4>
+
+    <%= form.fields_for :prompts do |prompt_form| %>
+      <div class="prompt-group">
+        <%= prompt_form.hidden_field :type %>
+
+        <div class="form-group">
+          <%= prompt_form.label :content, prompt_form.object.type || "Prompt", class: "form-label prompt-label" %>
+          <%= prompt_form.text_area :content,
+                class: "form-control prompt-textarea #{'is-invalid' if prompt_form.object.errors[:content].any?}",
+                rows: 6,
+                placeholder: "Enter #{prompt_form.object.type&.downcase || 'prompt'} content" %>
+          <% if prompt_form.object.errors[:content].any? %>
+            <div class="invalid-feedback">
+              <%= prompt_form.object.errors[:content].first %>
+            </div>
+          <% end %>
+        </div>
+
+        <% unless prompt_form.object.new_record? %>
+          <%= prompt_form.hidden_field :id %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="form-actions">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to 'Cancel', question_path(question), class: "btn btn-secondary" if question.persisted? %>
+    <%= link_to 'Cancel', questions_path, class: "btn btn-secondary" if question.new_record? %>
+  </div>
+<% end %>
+
+<style>
+  .question-form {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  }
+
+  .form-control.is-invalid {
+    border-color: #dc3545;
+  }
+
+  .form-control.is-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+  }
+
+  .invalid-feedback {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 5px;
+  }
+
+  .prompts-section {
+    margin: 30px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+
+  .prompts-section h4 {
+    margin: 0 0 20px 0;
+    color: #495057;
+  }
+
+  .prompt-group {
+    margin-bottom: 25px;
+    padding: 15px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+  }
+
+  .prompt-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .prompt-label {
+    font-size: 16px;
+    color: #007bff;
+  }
+
+  .prompt-textarea {
+    min-height: 120px;
+    resize: vertical;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.5;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    padding: 20px 0;
+    border-top: 1px solid #e1e5e9;
+    margin-top: 30px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    border: 2px solid;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  }
+
+  .btn-secondary {
+    background-color: transparent;
+    border-color: #6c757d;
+    color: #6c757d;
+  }
+
+  .btn-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+  }
+
+  .alert {
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+  }
+
+  .alert-danger {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+  }
+
+  .alert h4 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+  }
+
+  .alert ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .alert li {
+    margin-bottom: 5px;
+  }
+
+  @media (max-width: 768px) {
+    .question-form {
+      padding: 15px;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+
+    .btn {
+      text-align: center;
+    }
+  }
+</style>

@@ -1,0 +1,48 @@
+<% content_for :title, "New Question" %>
+
+<div class="page-header">
+  <h1>New Question</h1>
+  <%= link_to 'Back to Questions', questions_path, class: "btn btn-outline-secondary" %>
+</div>
+
+<%= render 'form', question: @question %>
+
+<style>
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e1e5e9;
+  }
+
+  .page-header h1 {
+    margin: 0;
+    color: #2c3e50;
+  }
+
+  .btn-outline-secondary {
+    background-color: transparent;
+    border: 2px solid #6c757d;
+    color: #6c757d;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+  }
+</style>

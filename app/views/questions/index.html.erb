@@ -1,0 +1,317 @@
+<% content_for :title, "Questions" %>
+
+<div class="questions-index">
+  <div class="header-section">
+    <h1>Questions</h1>
+    <%= link_to "New Question", new_question_path, class: "btn btn-primary" %>
+  </div>
+
+  <div class="search-section">
+    <div class="search-box">
+      <input type="text" id="question-search" placeholder="Search questions..." class="form-control">
+      <div class="search-stats">
+        <span id="search-results-count"><%= @questions.count %></span> questions
+      </div>
+    </div>
+  </div>
+
+  <div class="questions-list" id="questions-container">
+    <% if @questions.any? %>
+      <% @questions.each do |question| %>
+        <div class="question-card" data-searchable="<%= question.title.downcase %> <%= question.toss_up&.content&.downcase %> <%= question.bonus&.content&.downcase %>">
+          <div class="question-header">
+            <h3 class="question-title"><%= question.title %></h3>
+            <div class="question-actions">
+              <%= link_to "Edit", edit_question_path(question), class: "btn btn-sm btn-outline-primary" %>
+              <%= link_to "View", question_path(question), class: "btn btn-sm btn-outline-secondary" %>
+            </div>
+          </div>
+
+          <div class="question-content">
+            <% if question.toss_up.present? %>
+              <div class="prompt-section">
+                <strong>Toss Up:</strong>
+                <p class="prompt-preview"><%= truncate(question.toss_up.content, length: 150) if question.toss_up.content %></p>
+              </div>
+            <% end %>
+
+            <% if question.bonus.present? %>
+              <div class="prompt-section">
+                <strong>Bonus:</strong>
+                <p class="prompt-preview"><%= truncate(question.bonus.content, length: 150) if question.bonus.content %></p>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="question-meta">
+            <small class="text-muted">
+              Created: <%= question.created_at.strftime("%B %d, %Y") %>
+              <% if question.updated_at != question.created_at %>
+                | Updated: <%= question.updated_at.strftime("%B %d, %Y") %>
+              <% end %>
+            </small>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="empty-state">
+        <h3>No questions found</h3>
+        <p>Get started by creating your first question.</p>
+        <%= link_to "Create Question", new_question_path, class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  .questions-index {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+
+  .header-section h1 {
+    margin: 0;
+    color: #333;
+  }
+
+  .search-section {
+    margin-bottom: 25px;
+  }
+
+  .search-box {
+    position: relative;
+    max-width: 400px;
+  }
+
+  #question-search {
+    width: 100%;
+    padding: 10px 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.2s;
+  }
+
+  #question-search:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  }
+
+  .search-stats {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #6c757d;
+  }
+
+  .question-card {
+    background: white;
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .question-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+  }
+
+  .question-title {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.4em;
+    flex-grow: 1;
+    margin-right: 15px;
+  }
+
+  .question-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .question-content {
+    margin-bottom: 15px;
+  }
+
+  .prompt-section {
+    margin-bottom: 12px;
+  }
+
+  .prompt-section strong {
+    color: #495057;
+    font-size: 0.95em;
+  }
+
+  .prompt-preview {
+    margin: 5px 0 0 0;
+    color: #6c757d;
+    font-size: 0.9em;
+    line-height: 1.4;
+  }
+
+  .question-meta {
+    border-top: 1px solid #f1f3f4;
+    padding-top: 10px;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  }
+
+  .btn-outline-primary {
+    background-color: transparent;
+    border-color: #007bff;
+    color: #007bff;
+  }
+
+  .btn-outline-primary:hover {
+    background-color: #007bff;
+    color: white;
+  }
+
+  .btn-outline-secondary {
+    background-color: transparent;
+    border-color: #6c757d;
+    color: #6c757d;
+  }
+
+  .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+  }
+
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+  }
+
+  .empty-state h3 {
+    margin-bottom: 10px;
+    color: #495057;
+  }
+
+  .text-muted {
+    color: #6c757d !important;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  @media (max-width: 768px) {
+    .questions-index {
+      padding: 15px;
+    }
+
+    .header-section {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .question-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .question-actions {
+      width: 100%;
+    }
+
+    .search-box {
+      max-width: 100%;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('question-search');
+    const questionsContainer = document.getElementById('questions-container');
+    const searchResultsCount = document.getElementById('search-results-count');
+    const questionCards = questionsContainer.querySelectorAll('.question-card');
+
+    function performSearch() {
+      const searchTerm = searchInput.value.toLowerCase().trim();
+      let visibleCount = 0;
+
+      questionCards.forEach(function(card) {
+        const searchableContent = card.getAttribute('data-searchable') || '';
+        const isMatch = searchTerm === '' || searchableContent.includes(searchTerm);
+
+        if (isMatch) {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+
+      searchResultsCount.textContent = visibleCount;
+    }
+
+    // Search as user types
+    searchInput.addEventListener('input', performSearch);
+
+    // Clear search on escape key
+    searchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        searchInput.value = '';
+        performSearch();
+      }
+    });
+
+    // Focus search input on Ctrl/Cmd + K
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInput.focus();
+      }
+    });
+  });
+</script>

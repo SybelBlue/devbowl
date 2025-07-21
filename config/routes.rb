@@ -24,5 +24,7 @@ Rails.application.routes.draw do
 
   resources :users, only: %i[create]
 
+  resources :questions, only: %i[index show new edit]
+
   mount ActionCable.server => "/cable"
 end
