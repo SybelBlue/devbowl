@@ -7,7 +7,33 @@ let reconnectAttempts = 0;
 const maxReconnectAttempts = 5;
 let roomChannel = null;
 
-window.connect = function() {
+const statusIndicatortLabels = {
+  connected: {
+    textContent: "Connected",
+    className: "connection-status connected",
+  },
+  rejected: {
+    textContent: "Connection rejected - try refreshing",
+    className: "connection-status rejected",
+  },
+  disconnected: {
+    textContent: "Disconnected",
+    className: "connection-status disconnected",
+  },
+};
+
+window.updateStatusIndicator = (status) => {
+  const statusElement = document.getElementById("connection-status");
+  if (!statusElement) return;
+  const labels = statusIndicatortLabels[status];
+  if (!labels)
+    throw new Error("status label: `" + status + "` not recognized!");
+
+  statusElement.textContent = labels.textContent;
+  statusElement.className = labels.className;
+};
+
+window.connect = () => {
   const roomElement = document.getElementById("room-top");
 
   if (!roomElement) {
@@ -34,11 +60,7 @@ window.connect = function() {
           reconnectAttempts = 0;
 
           // Show connection status
-          const statusElement = document.getElementById("connection-status");
-          if (statusElement) {
-            statusElement.textContent = "Connected";
-            statusElement.className = "connection-status connected";
-          }
+          updateStatusIndicator("connected");
 
           // Check if there's already an active game when we connect
           setTimeout(() => {
@@ -51,11 +73,7 @@ window.connect = function() {
           console.log("❌ Disconnected from room channel");
 
           // Show disconnection status
-          const statusElement = document.getElementById("connection-status");
-          if (statusElement) {
-            statusElement.textContent = "Disconnected";
-            statusElement.className = "connection-status disconnected";
-          }
+          updateStatusIndicator("disconnected");
 
           // Attempt to reconnect
           if (reconnectAttempts < maxReconnectAttempts) {
@@ -71,11 +89,7 @@ window.connect = function() {
 
         rejected() {
           console.log("🚫 Connection rejected");
-          const statusElement = document.getElementById("connection-status");
-          if (statusElement) {
-            statusElement.textContent = "Connection rejected - try refreshing";
-            statusElement.className = "connection-status rejected";
-          }
+          updateStatusIndicator("rejected");
         },
 
         received(data) {
@@ -214,7 +228,7 @@ window.connect = function() {
   window.roomChannel = roomChannel;
 
   return true;
-}
+};
 
 window.reconnectToRoom = () => {
   console.log("Manual reconnect triggered");
@@ -226,15 +240,11 @@ if (!connect()) {
   if (reconnectAttempts < maxReconnectAttempts) {
     reconnectAttempts++;
     console.log(
-      `🔄 Attempting to reconnect (${reconnectAttempts}/${maxReconnectAttempts})...`
+      `🔄 Attempting to reconnect (${reconnectAttempts}/${maxReconnectAttempts}) in ${reconnectAttempts} seconds...`
     );
     setTimeout(() => connect(), 1000 * reconnectAttempts);
   } else {
-    console.log("Max reconnect attempts reached");
-    const statusElement = document.getElementById("connection-status");
-    if (statusElement) {
-      statusElement.textContent = "Connection rejected - try refreshing";
-      statusElement.className = "connection-status rejected";
-    }
+    console.error("Max reconnect attempts reached");
+    updateStatusIndicator("rejected");
   }
 }

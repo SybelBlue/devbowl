@@ -102,11 +102,7 @@
     }
   }
   if (window.roomChannel) {
-    const statusElement = document.getElementById("connection-status");
-    if (statusElement) {
-      statusElement.textContent = "Connected";
-      statusElement.className = "connection-status connected";
-    }
+    window.updateStatusIndicator('connected');
   }
 </script>
 <% end %>
