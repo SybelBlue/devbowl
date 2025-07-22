@@ -26,7 +26,7 @@
     <%= form.fields_for :prompts do |prompt_form| %>
       <div class="prompt-group" data-prompt-type="<%= prompt_form.object.type %>">
         <%= prompt_form.hidden_field :type %>
-        <div class="storage" style="display: none;"></div>
+        <div class="hidden-storage" style="display: none;"></div>
 
         <div class="prompt-header">
           <h5><%= prompt_form.object.type || "Prompt" %></h5>
@@ -149,27 +149,35 @@
 
 <script>
   function initAnswerFields() {
-    console.log('running form js');
     // Handle format changes for each prompt
     document.querySelectorAll('.format-select').forEach(function(select) {
       const promptGroup = select.closest('.prompt-group');
       function toggleAnswerFields(format) {
-        const mcAnswer = promptGroup.querySelector('.mc-answer');
-        const answerInputContainer = promptGroup.querySelector('.answer-input-container');
-        const saAnswer = promptGroup.querySelector('.sa-answer');
-        const uaAnswer = promptGroup.querySelector('.ua-answer');
-        const storage = promptGroup.querySelector('.storage');
+        const mcAnswer = $(promptGroup).find('.mc-answer').get(0);
+        const saAnswer = $(promptGroup).find('.sa-answer').get(0);
+        const uaAnswer = $(promptGroup).find('.ua-answer').get(0);
+        const answerInputContainer = $(promptGroup).find('.answer-input-container').get(0);
+        const hiddenStorage = $(promptGroup).find('.hidden-storage').get(0);
+
+        // raises error if not originally in answerInputContainer
+        const putInStorage = (elem) => {
+          answerInputContainer.removeChild(elem);
+          hiddenStorage.appendChild(elem);
+        };
+
+        // raises error if not originally in hiddenStorage
+        const takeFromStorage = (elem) => {
+          hiddenStorage.removeChild(elem);
+          answerInputContainer.appendChild(elem);
+        };
 
         // Hide all answer fields first
         let initialCall = true;
         let switchedFrom;
         [mcAnswer, saAnswer, uaAnswer].forEach(elem => {
-          elem.style.display = 'none';
           try {
             // raises error if not present, happens often.
-            answerInputContainer.removeChild(elem);
-            // if error, don't add.
-            storage.appendChild(elem);
+            putInStorage(elem);
             // if error, don't overwrite
             switchedFrom = elem.dataset.answerType;
           } catch(e) {
@@ -213,19 +221,13 @@
         // Show appropriate fields based on format
         switch(format) {
           case 'MultipleChoice':
-            mcAnswer.style.display = 'block';
-            storage.removeChild(mcAnswer);
-            answerInputContainer.appendChild(mcAnswer);
+            takeFromStorage(mcAnswer);
             break;
           case 'ShortAnswer':
-            saAnswer.style.display = 'block';
-            storage.removeChild(saAnswer);
-            answerInputContainer.appendChild(saAnswer);
+            takeFromStorage(saAnswer);
             break;
           case 'UmActually':
-            uaAnswer.style.display = 'block';
-            storage.removeChild(uaAnswer);
-            answerInputContainer.appendChild(uaAnswer);
+            takeFromStorage(uaAnswer);
             break;
         }
       }
