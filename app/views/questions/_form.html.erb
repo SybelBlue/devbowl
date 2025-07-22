@@ -72,15 +72,15 @@
           <!-- Answer field for non-multiple choice formats -->
           <div style="width: 100%">
             <%= prompt_form.label :answer, class: "form-label" %>
-            <div class="form-group non-mc-answer" style="" >
+            <div class="form-group" style="" >
               <div class="answer-input-container">
                 <!-- Multiple Choice Answer Choices -->
-                <div class="answer-choices-section" style="display; none" >
+                <div class="mc-answer" style="display; none" data-answer-type="mc">
                   <div class="form-group">
                     <%= prompt_form.label :answer_choices, "Choices", class: "form-label" %>
                     <div class="answer-choices-list">
                       <% %w[W X Y Z].each_with_index do |ltr, i| %>
-                        <div class="answer-choice-row">
+                        <div class="answer-choice-row" data-answer-choice="<%= ltr %>">
                           <div class="choice-radio">
                             <%= prompt_form.radio_button :answer, ltr, class: "answer-radio form-control" %>
                           </div>
@@ -109,14 +109,14 @@
                 </div>
 
                 <!-- Short Answer -->
-                <div class="sa-answer" style="display; none" >
+                <div class="sa-answer" style="display; none" data-answer-type="sa">
                   <%= prompt_form.text_field :answer,
                         class: "form-control",
                         placeholder: "Enter the correct answer" %>
                 </div>
 
                 <!-- Um Actually Answer -->
-                <div class="ua-answer" style="display; none" >
+                <div class="ua-answer" style="display; none" data-answer-type="ua">
                   <%= prompt_form.text_area :answer,
                         class: "form-control",
                         rows: 2,
@@ -154,42 +154,77 @@
     document.querySelectorAll('.format-select').forEach(function(select) {
       const promptGroup = select.closest('.prompt-group');
       function toggleAnswerFields(format) {
-        const answerChoicesSectionChild = promptGroup.querySelector('.answer-choices-section');
-        const nonMcAnswer = promptGroup.querySelector('.non-mc-answer');
+        const mcAnswer = promptGroup.querySelector('.mc-answer');
         const answerInputContainer = promptGroup.querySelector('.answer-input-container');
         const saAnswer = promptGroup.querySelector('.sa-answer');
         const uaAnswer = promptGroup.querySelector('.ua-answer');
         const storage = promptGroup.querySelector('.storage');
 
         // Hide all answer fields first
-        [answerChoicesSectionChild, saAnswer, uaAnswer].forEach(elem => {
+        let initialCall = true;
+        let switchedFrom;
+        [mcAnswer, saAnswer, uaAnswer].forEach(elem => {
+          elem.style.display = 'none';
           try {
+            // raises error if not present, happens often.
             answerInputContainer.removeChild(elem);
+            // if error, don't add.
             storage.appendChild(elem);
-          } catch(e) {}
-        })
-        try { answerInputContainer.removeChild(saAnswer); } catch(e) {}
-        try { answerInputContainer.removeChild(uaAnswer); } catch(e) {}
+            // if error, don't overwrite
+            switchedFrom = elem.dataset.answerType;
+          } catch(e) {
+            // only fails to err on first run.
+            initialCall = false;
+          }
+        });
 
-        if (answerChoicesSectionChild) answerChoicesSectionChild.style.display = 'none';
-        if (saAnswer) saAnswer.style.display = 'none';
-        if (uaAnswer) uaAnswer.style.display = 'none';
+        // carry-over answer between formats
+        try {
+          if (!initialCall) {
+            let carryOver;
+            if (switchedFrom == 'mc') {
+              const base = $(promptGroup).find('.answer-choice-row.selected') || $(promptGroup).find('.answer-choice-row');
+              carryOver = base.find('.choice-text').val();
+            } else {
+              carryOver = $(switchedFrom == 'sa' ? saAnswer : uaAnswer).find('.form-control').val();
+            }
+            carryOver = carryOver.replace(/um, actually.( it's)?\s*/i, '').trim();
+            console.log('Carrying over:', carryOver);
+            switch (format) {
+              case 'MultipleChoice':
+                $(promptGroup)
+                  .find('.answer-choice-row')
+                  .filter((_, e) => carryOver == e.dataset.answerChoice || carryOver == $(e).find('.choice-text').val())
+                  .first()
+                  .find('.answer-radio')
+                  .prop('checked', true)
+                  .click();
+                break;
+              case 'ShortAnswer':
+                $(saAnswer).find('.form-control').val(carryOver);
+                break;
+              case 'UmActually':
+                $(uaAnswer).find('.form-control').val("Um, actually, it's " + carryOver);
+                break;
+            }
+          }
+        } catch(e) { console.error('Error carrying over repsonse between formats', e) }
 
         // Show appropriate fields based on format
         switch(format) {
           case 'MultipleChoice':
-            answerChoicesSectionChild.style.display = 'block';
-            try { storage.removeChild(answerChoicesSectionChild); } catch (e) {}
-            answerInputContainer.appendChild(answerChoicesSectionChild);
+            mcAnswer.style.display = 'block';
+            storage.removeChild(mcAnswer);
+            answerInputContainer.appendChild(mcAnswer);
             break;
           case 'ShortAnswer':
             saAnswer.style.display = 'block';
-            try { storage.removeChild(saAnswer); } catch (e) {}
+            storage.removeChild(saAnswer);
             answerInputContainer.appendChild(saAnswer);
             break;
           case 'UmActually':
             uaAnswer.style.display = 'block';
-            try { storage.removeChild(uaAnswer); } catch (e) {}
+            storage.removeChild(uaAnswer);
             answerInputContainer.appendChild(uaAnswer);
             break;
         }
@@ -350,7 +385,7 @@
     max-width: 66.667%;
   }
 
-  .answer-choices-section {
+  .mc-answer {
     margin: 20px 0;
     padding: 20px;
     background: white;
