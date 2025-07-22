@@ -13,5 +13,5 @@ class Prompt < ApplicationRecord
   validates :answer_choices, if: -> { format == "MultipleChoice" }, presence: true, length: { is: 4 }
   validates :answer, if: -> { format == "MultipleChoice" }, inclusion: { in: %w[W X Y Z] }
 
-  validates :answer, if: -> { format == "UmActually" }, format: { with: /\A[Uu]m, actually[,:]/ }
+  validates :answer, if: -> { format == "UmActually" }, format: { with: /\AUm, actually[,:]/i }
 end

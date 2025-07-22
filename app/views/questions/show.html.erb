@@ -26,13 +26,11 @@
 
         <div class="prompt-content">
           <div class="question-text">
-            <h4>Question:</h4>
             <%= simple_format(@question.toss_up.content) if @question.toss_up.content %>
           </div>
 
           <% if @question.toss_up.format == 'MultipleChoice' && @question.toss_up.answer_choices.present? %>
             <div class="answer-choices">
-              <h4>Choices:</h4>
               <div class="choices-list">
                 <% ['W', 'X', 'Y', 'Z'].each_with_index do |letter, index| %>
                   <div class="choice-item <%= 'correct' if @question.toss_up.answer == letter %>">
@@ -46,7 +44,6 @@
             </div>
           <% else %>
             <div class="answer-section">
-              <h4>Answer:</h4>
               <div class="answer-text">
                 <%= simple_format(@question.toss_up.answer) if @question.toss_up.answer %>
               </div>
@@ -72,13 +69,11 @@
 
         <div class="prompt-content">
           <div class="question-text">
-            <h4>Question:</h4>
             <%= simple_format(@question.bonus.content) if @question.bonus.content %>
           </div>
 
           <% if @question.bonus.format == 'MultipleChoice' && @question.bonus.answer_choices.present? %>
             <div class="answer-choices">
-              <h4>Choices:</h4>
               <div class="choices-list">
                 <% ['W', 'X', 'Y', 'Z'].each_with_index do |letter, index| %>
                   <div class="choice-item <%= 'correct' if @question.bonus.answer == letter %>">
@@ -92,7 +87,6 @@
             </div>
           <% else %>
             <div class="answer-section">
-              <h4>Answer:</h4>
               <div class="answer-text">
                 <%= simple_format(@question.bonus.answer) if @question.bonus.answer %>
               </div>

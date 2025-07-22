@@ -29,17 +29,10 @@
 
           <div class="question-content">
             <% if question.toss_up.present? %>
-              <div class="prompt-section">
-                <strong>Toss Up:</strong>
-                <p class="prompt-preview"><%= truncate(question.toss_up.content, length: 150) if question.toss_up.content %></p>
-              </div>
+              <%= render 'prompt', prompt: question.toss_up, prompt_type: :toss_up, preview: true %>
             <% end %>
-
             <% if question.bonus.present? %>
-              <div class="prompt-section">
-                <strong>Bonus:</strong>
-                <p class="prompt-preview"><%= truncate(question.bonus.content, length: 150) if question.bonus.content %></p>
-              </div>
+              <%= render 'prompt', prompt: question.bonus, prompt_type: :bonus, preview: true %>
             <% end %>
           </div>
 
@@ -150,22 +143,6 @@
 
   .question-content {
     margin-bottom: 15px;
-  }
-
-  .prompt-section {
-    margin-bottom: 12px;
-  }
-
-  .prompt-section strong {
-    color: #495057;
-    font-size: 0.95em;
-  }
-
-  .prompt-preview {
-    margin: 5px 0 0 0;
-    color: #6c757d;
-    font-size: 0.9em;
-    line-height: 1.4;
   }
 
   .question-meta {

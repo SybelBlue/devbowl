@@ -31,7 +31,7 @@ class QuestionsController < ApplicationController
     if @question.update(question_params)
       redirect_to @question, notice: "Question was successfully updated."
     else
-      render :edit
+      render :edit, alert: "Question failed to update"
     end
   end
 
