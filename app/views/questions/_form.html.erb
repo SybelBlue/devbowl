@@ -147,6 +147,99 @@
   </div>
 <% end %>
 
+<script>
+  function initAnswerFields() {
+    console.log('running form js');
+    // Handle format changes for each prompt
+    document.querySelectorAll('.format-select').forEach(function(select) {
+      const promptGroup = select.closest('.prompt-group');
+      function toggleAnswerFields(format) {
+        const answerChoicesSectionChild = promptGroup.querySelector('.answer-choices-section');
+        const nonMcAnswer = promptGroup.querySelector('.non-mc-answer');
+        const answerInputContainer = promptGroup.querySelector('.answer-input-container');
+        const saAnswer = promptGroup.querySelector('.sa-answer');
+        const uaAnswer = promptGroup.querySelector('.ua-answer');
+        const storage = promptGroup.querySelector('.storage');
+
+        // Hide all answer fields first
+        [answerChoicesSectionChild, saAnswer, uaAnswer].forEach(elem => {
+          try {
+            answerInputContainer.removeChild(elem);
+            storage.appendChild(elem);
+          } catch(e) {}
+        })
+        try { answerInputContainer.removeChild(saAnswer); } catch(e) {}
+        try { answerInputContainer.removeChild(uaAnswer); } catch(e) {}
+
+        if (answerChoicesSectionChild) answerChoicesSectionChild.style.display = 'none';
+        if (saAnswer) saAnswer.style.display = 'none';
+        if (uaAnswer) uaAnswer.style.display = 'none';
+
+        // Show appropriate fields based on format
+        switch(format) {
+          case 'MultipleChoice':
+            answerChoicesSectionChild.style.display = 'block';
+            try { storage.removeChild(answerChoicesSectionChild); } catch (e) {}
+            answerInputContainer.appendChild(answerChoicesSectionChild);
+            break;
+          case 'ShortAnswer':
+            saAnswer.style.display = 'block';
+            try { storage.removeChild(saAnswer); } catch (e) {}
+            answerInputContainer.appendChild(saAnswer);
+            break;
+          case 'UmActually':
+            uaAnswer.style.display = 'block';
+            try { storage.removeChild(uaAnswer); } catch (e) {}
+            answerInputContainer.appendChild(uaAnswer);
+            break;
+        }
+      }
+
+      // Set initial state
+      toggleAnswerFields(select.value);
+
+      // Handle format changes
+      select.addEventListener('change', function() {
+        toggleAnswerFields(this.value);
+
+        // Clear radio button selection when switching away from multiple choice
+        if (this.value !== 'MultipleChoice') {
+          const radioButtons = promptGroup.querySelectorAll('.answer-radio');
+          radioButtons.forEach(radio => radio.checked = false);
+        }
+      });
+    });
+
+    // Handle radio button changes to update row styling
+    document.querySelectorAll('.answer-radio').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        // Remove highlight from all rows in this prompt group
+        const promptGroup = this.closest('.prompt-group');
+        const allRows = promptGroup.querySelectorAll('.answer-choice-row');
+        allRows.forEach(row => {
+          row.classList.remove('selected');
+        });
+
+        // Add highlight to selected row
+        const selectedRow = this.closest('.answer-choice-row');
+        if (selectedRow && this.checked) {
+          selectedRow.classList.add('selected');
+        }
+      });
+    });
+
+    // Set initial selection state
+    document.querySelectorAll('.answer-radio:checked').forEach(function(radio) {
+      const selectedRow = radio.closest('.answer-choice-row');
+      if (selectedRow) {
+        selectedRow.classList.add('selected');
+      }
+    });
+  }
+
+  $(document).ready(() => initAnswerFields());
+</script>
+
 <style>
   .question-form {
     max-width: 1000px;
@@ -435,96 +528,3 @@
     }
   }
 </style>
-
-<script>
-  function initAnswerFields() {
-    console.log('running form js');
-    // Handle format changes for each prompt
-    document.querySelectorAll('.format-select').forEach(function(select) {
-      const promptGroup = select.closest('.prompt-group');
-      function toggleAnswerFields(format) {
-        const answerChoicesSectionChild = promptGroup.querySelector('.answer-choices-section');
-        const nonMcAnswer = promptGroup.querySelector('.non-mc-answer');
-        const answerInputContainer = promptGroup.querySelector('.answer-input-container');
-        const saAnswer = promptGroup.querySelector('.sa-answer');
-        const uaAnswer = promptGroup.querySelector('.ua-answer');
-        const storage = promptGroup.querySelector('.storage');
-
-        // Hide all answer fields first
-        [answerChoicesSectionChild, saAnswer, uaAnswer].forEach(elem => {
-          try {
-            answerInputContainer.removeChild(elem);
-            storage.appendChild(elem);
-          } catch(e) {}
-        })
-        try { answerInputContainer.removeChild(saAnswer); } catch(e) {}
-        try { answerInputContainer.removeChild(uaAnswer); } catch(e) {}
-
-        if (answerChoicesSectionChild) answerChoicesSectionChild.style.display = 'none';
-        if (saAnswer) saAnswer.style.display = 'none';
-        if (uaAnswer) uaAnswer.style.display = 'none';
-
-        // Show appropriate fields based on format
-        switch(format) {
-          case 'MultipleChoice':
-            answerChoicesSectionChild.style.display = 'block';
-            try { storage.removeChild(answerChoicesSectionChild); } catch (e) {}
-            answerInputContainer.appendChild(answerChoicesSectionChild);
-            break;
-          case 'ShortAnswer':
-            saAnswer.style.display = 'block';
-            try { storage.removeChild(saAnswer); } catch (e) {}
-            answerInputContainer.appendChild(saAnswer);
-            break;
-          case 'UmActually':
-            uaAnswer.style.display = 'block';
-            try { storage.removeChild(uaAnswer); } catch (e) {}
-            answerInputContainer.appendChild(uaAnswer);
-            break;
-        }
-      }
-
-      // Set initial state
-      toggleAnswerFields(select.value);
-
-      // Handle format changes
-      select.addEventListener('change', function() {
-        toggleAnswerFields(this.value);
-
-        // Clear radio button selection when switching away from multiple choice
-        if (this.value !== 'MultipleChoice') {
-          const radioButtons = promptGroup.querySelectorAll('.answer-radio');
-          radioButtons.forEach(radio => radio.checked = false);
-        }
-      });
-    });
-
-    // Handle radio button changes to update row styling
-    document.querySelectorAll('.answer-radio').forEach(function(radio) {
-      radio.addEventListener('change', function() {
-        // Remove highlight from all rows in this prompt group
-        const promptGroup = this.closest('.prompt-group');
-        const allRows = promptGroup.querySelectorAll('.answer-choice-row');
-        allRows.forEach(row => {
-          row.classList.remove('selected');
-        });
-
-        // Add highlight to selected row
-        const selectedRow = this.closest('.answer-choice-row');
-        if (selectedRow && this.checked) {
-          selectedRow.classList.add('selected');
-        }
-      });
-    });
-
-    // Set initial selection state
-    document.querySelectorAll('.answer-radio:checked').forEach(function(radio) {
-      const selectedRow = radio.closest('.answer-choice-row');
-      if (selectedRow) {
-        selectedRow.classList.add('selected');
-      }
-    });
-  }
-
-  $(document).ready(() => initAnswerFields());
-</script>
