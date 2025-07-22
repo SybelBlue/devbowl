@@ -1,4 +1,4 @@
-<%= form_with(model: @question, local: true, html: { class: "question-form" }) do |form| %>
+<%= form_with(model: @question, local: true, html: { class: "question-form", data: { turbo: false } }) do |form| %>
   <% if @question.errors.any? %>
     <div id="error_explanation" class="alert alert-danger">
       <h4><%= pluralize(question.errors.count, "error") %> prohibited this question from being saved:</h4>
@@ -26,6 +26,7 @@
     <%= form.fields_for :prompts do |prompt_form| %>
       <div class="prompt-group" data-prompt-type="<%= prompt_form.object.type %>">
         <%= prompt_form.hidden_field :type %>
+        <div class="storage" style="display: none;"></div>
 
         <div class="prompt-header">
           <h5><%= prompt_form.object.type || "Prompt" %></h5>
@@ -67,57 +68,55 @@
           </div>
         </div>
 
-        <!-- Multiple Choice Answer Choices -->
-          <div>
-        <div class="answer-choices-section">
-            <div class="form-group">
-              <%= prompt_form.label :answer_choices, "Answer Choices", class: "form-label" %>
-              <div class="answer-choices-list">
-                <% %w[W X Y Z].each_with_index do |ltr, i| %>
-                  <div class="answer-choice-row">
-                    <div class="choice-radio">
-                      <%= prompt_form.radio_button :answer, ltr, class: "answer-radio" %>
-                    </div>
-                    <div class="choice-label-container">
-                      <%= prompt_form.label :answer, "#{ltr}.",
-                        value: ltr,
-                        class: "choice-label" %>
-                    </div>
-                    <div class="choice-input">
-                      <%= prompt_form.text_field :answer_choices,
-                            multiple: true,
-                            value: prompt_form.object.answer_choices[i],
-                            class: "form-control choice-text",
-                            placeholder: "Enter choice #{ltr}" %>
-                    </div>
-                  </div>
-                <% end %>
-              </div>
-              <small class="form-text text-muted">Select the radio button next to the correct answer</small>
-              <% if prompt_form.object.errors[:answer_choices].any? %>
-                <div class="invalid-feedback d-block">
-                  <%= prompt_form.object.errors[:answer_choices].first %>
-                </div>
-              <% end %>
-            </div>
-          </div>
-        </div>
-
         <div class="row">
           <!-- Answer field for non-multiple choice formats -->
-          <div class="col-md-6">
-            <div class="form-group non-mc-answer">
-              <%= prompt_form.label :answer, class: "form-label" %>
+          <div style="width: 100%">
+            <%= prompt_form.label :answer, class: "form-label" %>
+            <div class="form-group non-mc-answer" style="" >
               <div class="answer-input-container">
+                <!-- Multiple Choice Answer Choices -->
+                <div class="answer-choices-section" style="display; none" >
+                  <div class="form-group">
+                    <%= prompt_form.label :answer_choices, "Choices", class: "form-label" %>
+                    <div class="answer-choices-list">
+                      <% %w[W X Y Z].each_with_index do |ltr, i| %>
+                        <div class="answer-choice-row">
+                          <div class="choice-radio">
+                            <%= prompt_form.radio_button :answer, ltr, class: "answer-radio form-control" %>
+                          </div>
+                          <div class="choice-label-container">
+                            <%= prompt_form.label :answer, "#{ltr}.",
+                              value: ltr,
+                              class: "choice-label" %>
+                          </div>
+                          <div class="choice-input">
+                            <%= prompt_form.text_field :answer_choices,
+                                  multiple: true,
+                                  value: prompt_form.object.answer_choices[i],
+                                  class: "form-control choice-text",
+                                  placeholder: "Enter choice #{ltr}" %>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                    <small class="form-text text-muted">Select the radio button next to the correct answer</small>
+                    <% if prompt_form.object.errors[:answer_choices].any? %>
+                      <div class="invalid-feedback d-block">
+                        <%= prompt_form.object.errors[:answer_choices].first %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+
                 <!-- Short Answer -->
-                <div class="sa-answer">
+                <div class="sa-answer" style="display; none" >
                   <%= prompt_form.text_field :answer,
                         class: "form-control",
                         placeholder: "Enter the correct answer" %>
                 </div>
 
                 <!-- Um Actually Answer -->
-                <div class="ua-answer">
+                <div class="ua-answer" style="display; none" >
                   <%= prompt_form.text_area :answer,
                         class: "form-control",
                         rows: 2,
@@ -438,33 +437,48 @@
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    console.log('running form js')
+  function initAnswerFields() {
+    console.log('running form js');
     // Handle format changes for each prompt
     document.querySelectorAll('.format-select').forEach(function(select) {
       const promptGroup = select.closest('.prompt-group');
-      const answerChoicesSectionChild = promptGroup.querySelector('.answer-choices-section');
-      const answerChoicesSection = answerChoicesSectionChild.parentElement;
-      const nonMcAnswer = promptGroup.querySelector('.non-mc-answer');
-      const answerInputContainer = promptGroup.querySelector('.answer-input-container');
-      const saAnswer = promptGroup.querySelector('.sa-answer');
-      const uaAnswer = promptGroup.querySelector('.ua-answer');
-
       function toggleAnswerFields(format) {
+        const answerChoicesSectionChild = promptGroup.querySelector('.answer-choices-section');
+        const nonMcAnswer = promptGroup.querySelector('.non-mc-answer');
+        const answerInputContainer = promptGroup.querySelector('.answer-input-container');
+        const saAnswer = promptGroup.querySelector('.sa-answer');
+        const uaAnswer = promptGroup.querySelector('.ua-answer');
+        const storage = promptGroup.querySelector('.storage');
+
         // Hide all answer fields first
-        try { answerChoicesSection.removeChild(answerChoicesSectionChild); } catch(e) { console.log(e) }
-        try { answerInputContainer.removeChild(saAnswer); } catch(e) { console.log(e) }
-        try { answerInputContainer.removeChild(uaAnswer); } catch(e) { console.log(e) }
+        [answerChoicesSectionChild, saAnswer, uaAnswer].forEach(elem => {
+          try {
+            answerInputContainer.removeChild(elem);
+            storage.appendChild(elem);
+          } catch(e) {}
+        })
+        try { answerInputContainer.removeChild(saAnswer); } catch(e) {}
+        try { answerInputContainer.removeChild(uaAnswer); } catch(e) {}
+
+        if (answerChoicesSectionChild) answerChoicesSectionChild.style.display = 'none';
+        if (saAnswer) saAnswer.style.display = 'none';
+        if (uaAnswer) uaAnswer.style.display = 'none';
 
         // Show appropriate fields based on format
         switch(format) {
           case 'MultipleChoice':
-            answerChoicesSection.appendChild(answerChoicesSectionChild);
+            answerChoicesSectionChild.style.display = 'block';
+            try { storage.removeChild(answerChoicesSectionChild); } catch (e) {}
+            answerInputContainer.appendChild(answerChoicesSectionChild);
             break;
           case 'ShortAnswer':
+            saAnswer.style.display = 'block';
+            try { storage.removeChild(saAnswer); } catch (e) {}
             answerInputContainer.appendChild(saAnswer);
             break;
           case 'UmActually':
+            uaAnswer.style.display = 'block';
+            try { storage.removeChild(uaAnswer); } catch (e) {}
             answerInputContainer.appendChild(uaAnswer);
             break;
         }
@@ -510,5 +524,7 @@
         selectedRow.classList.add('selected');
       }
     });
-  });
+  }
+
+  $(document).ready(() => initAnswerFields());
 </script>
