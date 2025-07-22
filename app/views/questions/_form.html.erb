@@ -1,5 +1,5 @@
-<%= form_with(model: question, local: true, html: { class: "question-form" }) do |form| %>
-  <% if question.errors.any? %>
+<%= form_with(model: @question, local: true, html: { class: "question-form" }) do |form| %>
+  <% if @question.errors.any? %>
     <div id="error_explanation" class="alert alert-danger">
       <h4><%= pluralize(question.errors.count, "error") %> prohibited this question from being saved:</h4>
       <ul>
@@ -13,7 +13,7 @@
   <div class="form-group">
     <%= form.label :title, class: "form-label" %>
     <%= form.text_field :title, class: "form-control #{'is-invalid' if question.errors[:title].any?}", placeholder: "Enter question title" %>
-    <% if question.errors[:title].any? %>
+    <% if @question.errors[:title].any? %>
       <div class="invalid-feedback">
         <%= question.errors[:title].first %>
       </div>
@@ -68,61 +68,61 @@
         </div>
 
         <!-- Multiple Choice Answer Choices -->
-        <div class="answer-choices-section" style="<%= 'display: none;' unless prompt_form.object.format == 'MultipleChoice' %>">
-          <div class="form-group">
-            <%= prompt_form.label :answer_choices, "Answer Choices (4 required)", class: "form-label" %>
-            <div class="answer-choices-grid">
-              <% 4.times do |i| %>
-                <div class="answer-choice-item">
-                  <label class="choice-label"><%= ['W', 'X', 'Y', 'Z'][i] %>.</label>
-                  <%= text_field_tag "#{prompt_form.object_name}[answer_choices][]",
-                        (prompt_form.object.answer_choices && prompt_form.object.answer_choices[i]) || '',
-                        class: "form-control",
-                        placeholder: "Choice #{['W', 'X', 'Y', 'Z'][i]}" %>
+          <div>
+        <div class="answer-choices-section">
+            <div class="form-group">
+              <%= prompt_form.label :answer_choices, "Answer Choices", class: "form-label" %>
+              <div class="answer-choices-list">
+                <% %w[W X Y Z].each_with_index do |ltr, i| %>
+                  <div class="answer-choice-row">
+                    <div class="choice-radio">
+                      <%= prompt_form.radio_button :answer, ltr, class: "answer-radio" %>
+                    </div>
+                    <div class="choice-label-container">
+                      <%= prompt_form.label :answer, "#{ltr}.",
+                        value: ltr,
+                        class: "choice-label" %>
+                    </div>
+                    <div class="choice-input">
+                      <%= prompt_form.text_field :answer_choices,
+                            multiple: true,
+                            value: prompt_form.object.answer_choices[i],
+                            class: "form-control choice-text",
+                            placeholder: "Enter choice #{ltr}" %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+              <small class="form-text text-muted">Select the radio button next to the correct answer</small>
+              <% if prompt_form.object.errors[:answer_choices].any? %>
+                <div class="invalid-feedback d-block">
+                  <%= prompt_form.object.errors[:answer_choices].first %>
                 </div>
               <% end %>
             </div>
-            <% if prompt_form.object.errors[:answer_choices].any? %>
-              <div class="invalid-feedback d-block">
-                <%= prompt_form.object.errors[:answer_choices].first %>
-              </div>
-            <% end %>
           </div>
         </div>
 
         <div class="row">
-          <!-- Answer field - changes based on format -->
+          <!-- Answer field for non-multiple choice formats -->
           <div class="col-md-6">
-            <div class="form-group">
+            <div class="form-group non-mc-answer">
               <%= prompt_form.label :answer, class: "form-label" %>
               <div class="answer-input-container">
-                <!-- Multiple Choice Answer -->
-                <div class="mc-answer" style="<%= 'display: none;' unless prompt_form.object.format == 'MultipleChoice' %>">
-                  <%= prompt_form.select :answer,
-                        options_for_select([
-                          ['W', 'W'],
-                          ['X', 'X'],
-                          ['Y', 'Y'],
-                          ['Z', 'Z']
-                        ], prompt_form.object.answer),
-                        { prompt: 'Select correct answer' },
-                        { class: "form-control" } %>
-                </div>
-
                 <!-- Short Answer -->
-                <div class="sa-answer" style="<%= 'display: none;' unless prompt_form.object.format == 'ShortAnswer' %>">
+                <div class="sa-answer">
                   <%= prompt_form.text_field :answer,
                         class: "form-control",
                         placeholder: "Enter the correct answer" %>
                 </div>
 
                 <!-- Um Actually Answer -->
-                <div class="ua-answer" style="<%= 'display: none;' unless prompt_form.object.format == 'UmActually' %>">
+                <div class="ua-answer">
                   <%= prompt_form.text_area :answer,
                         class: "form-control",
                         rows: 2,
                         placeholder: "Um, actually, [correction]..." %>
-                  <small class="form-text text-muted">Must start with "Um, actually," or "Um actually:"</small>
+                  <small class="form-text text-muted">Must start with "Um, actually," or "Um, actually:"</small>
                 </div>
               </div>
               <% if prompt_form.object.errors[:answer].any? %>
@@ -260,23 +260,44 @@
 
   .answer-choices-section {
     margin: 20px 0;
-    padding: 15px;
+    padding: 20px;
     background: white;
     border-radius: 8px;
     border: 1px solid #e1e5e9;
   }
 
-  .answer-choices-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 10px;
+  .answer-choices-list {
+    margin-top: 15px;
   }
 
-  .answer-choice-item {
+  .answer-choice-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    margin-bottom: 15px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    transition: background-color 0.2s;
+  }
+
+  .answer-choice-row:hover {
+    background: #e9ecef;
+  }
+
+  .choice-radio {
+    flex-shrink: 0;
+  }
+
+  .answer-radio {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  .choice-label-container {
+    flex-shrink: 0;
   }
 
   .choice-label {
@@ -284,6 +305,23 @@
     color: #495057;
     min-width: 25px;
     margin: 0;
+    cursor: pointer;
+    display: block;
+    padding: 8px 0;
+  }
+
+  .choice-input {
+    flex: 1;
+  }
+
+  .choice-text {
+    margin: 0;
+  }
+
+  /* Style the radio button when checked */
+  .answer-choice-row:has(.answer-radio:checked) {
+    background: #e7f3ff;
+    border-color: #007bff;
   }
 
   .answer-input-container > div {
@@ -293,7 +331,8 @@
   .form-text {
     font-size: 12px;
     color: #6c757d;
-    margin-top: 5px;
+    margin-top: 8px;
+    display: block;
   }
 
   .form-actions {
@@ -378,8 +417,14 @@
       flex-direction: column;
     }
 
-    .answer-choices-grid {
-      grid-template-columns: 1fr;
+    .answer-choice-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .choice-radio {
+      align-self: flex-start;
     }
 
     .form-actions {
@@ -394,32 +439,33 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    console.log('running form js')
     // Handle format changes for each prompt
     document.querySelectorAll('.format-select').forEach(function(select) {
       const promptGroup = select.closest('.prompt-group');
-      const answerChoicesSection = promptGroup.querySelector('.answer-choices-section');
-      const mcAnswer = promptGroup.querySelector('.mc-answer');
+      const answerChoicesSectionChild = promptGroup.querySelector('.answer-choices-section');
+      const answerChoicesSection = answerChoicesSectionChild.parentElement;
+      const nonMcAnswer = promptGroup.querySelector('.non-mc-answer');
+      const answerInputContainer = promptGroup.querySelector('.answer-input-container');
       const saAnswer = promptGroup.querySelector('.sa-answer');
       const uaAnswer = promptGroup.querySelector('.ua-answer');
 
       function toggleAnswerFields(format) {
         // Hide all answer fields first
-        if (answerChoicesSection) answerChoicesSection.style.display = 'none';
-        if (mcAnswer) mcAnswer.style.display = 'none';
-        if (saAnswer) saAnswer.style.display = 'none';
-        if (uaAnswer) uaAnswer.style.display = 'none';
+        try { answerChoicesSection.removeChild(answerChoicesSectionChild); } catch(e) { console.log(e) }
+        try { answerInputContainer.removeChild(saAnswer); } catch(e) { console.log(e) }
+        try { answerInputContainer.removeChild(uaAnswer); } catch(e) { console.log(e) }
 
         // Show appropriate fields based on format
         switch(format) {
           case 'MultipleChoice':
-            if (answerChoicesSection) answerChoicesSection.style.display = 'block';
-            if (mcAnswer) mcAnswer.style.display = 'block';
+            answerChoicesSection.appendChild(answerChoicesSectionChild);
             break;
           case 'ShortAnswer':
-            if (saAnswer) saAnswer.style.display = 'block';
+            answerInputContainer.appendChild(saAnswer);
             break;
           case 'UmActually':
-            if (uaAnswer) uaAnswer.style.display = 'block';
+            answerInputContainer.appendChild(uaAnswer);
             break;
         }
       }
@@ -430,7 +476,39 @@
       // Handle format changes
       select.addEventListener('change', function() {
         toggleAnswerFields(this.value);
+
+        // Clear radio button selection when switching away from multiple choice
+        if (this.value !== 'MultipleChoice') {
+          const radioButtons = promptGroup.querySelectorAll('.answer-radio');
+          radioButtons.forEach(radio => radio.checked = false);
+        }
       });
+    });
+
+    // Handle radio button changes to update row styling
+    document.querySelectorAll('.answer-radio').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        // Remove highlight from all rows in this prompt group
+        const promptGroup = this.closest('.prompt-group');
+        const allRows = promptGroup.querySelectorAll('.answer-choice-row');
+        allRows.forEach(row => {
+          row.classList.remove('selected');
+        });
+
+        // Add highlight to selected row
+        const selectedRow = this.closest('.answer-choice-row');
+        if (selectedRow && this.checked) {
+          selectedRow.classList.add('selected');
+        }
+      });
+    });
+
+    // Set initial selection state
+    document.querySelectorAll('.answer-radio:checked').forEach(function(radio) {
+      const selectedRow = radio.closest('.answer-choice-row');
+      if (selectedRow) {
+        selectedRow.classList.add('selected');
+      }
     });
   });
 </script>

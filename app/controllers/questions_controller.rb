@@ -31,7 +31,7 @@ class QuestionsController < ApplicationController
     if @question.update(question_params)
       redirect_to @question, notice: "Question was successfully updated."
     else
-      render :edit, alert: "Question failed to update"
+      render :edit, status: 422, alert: "Question failed to update"
     end
   end
 
@@ -47,7 +47,17 @@ class QuestionsController < ApplicationController
   end
 
   def question_params
-    params.require(:question).permit(:title,
-      prompts_attributes: [ :id, :type, :content, :_destroy ])
+    params.require(:question).permit(
+      :title,
+      prompts_attributes: [
+        :id,
+        :type,
+        :content,
+        :format,
+        :answer,
+        { answer_choices: [] },
+        :_destroy
+      ]
+    )
   end
 end

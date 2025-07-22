@@ -25,11 +25,8 @@
           <%= link_to "DevBowl", root_path, class: "nav-brand" %>
 
           <div class="nav-menu">
-            <% if controller_name == 'questions' %>
-              <%= link_to "Rooms", rooms_path, class: "nav-link #{'active' if controller_name == 'questions' }" %>
-            <% else %>
-              <%= link_to "Questions", questions_path, class: "nav-link #{'active' if controller_name == 'questions' }" %>
-            <% end %>
+            <%= link_to "Rooms", rooms_path, class: "nav-link #{'active' if controller_name == 'questions' }" %>
+            <%= link_to "Questions", questions_path, class: "nav-link #{'active' if controller_name == 'questions' }" %>
           </div>
 
           <!-- Mobile menu button -->
