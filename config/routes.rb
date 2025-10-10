@@ -22,7 +22,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :users, only: %i[create]
+  resources :users, only: %i[ edit create destroy ]
 
   resources :questions
 
