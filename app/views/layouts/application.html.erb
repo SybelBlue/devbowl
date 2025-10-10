@@ -28,8 +28,9 @@
           <%= link_to "DevBowl", root_path, class: "nav-brand" %>
 
           <div class="nav-menu">
-            <%= link_to "Rooms", rooms_path, class: "nav-link #{'active' if controller_name == 'questions' }" %>
+            <%= link_to "Rooms", rooms_path, class: "nav-link #{'active' if controller_name == 'rooms' }" %>
             <%= link_to "Questions", questions_path, class: "nav-link #{'active' if controller_name == 'questions' }" %>
+            <%= button_to "Log Out", users_path, method: :destroy %>
           </div>
 
           <!-- Mobile menu button -->
