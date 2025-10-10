@@ -92,7 +92,7 @@
                           <div class="choice-input">
                             <%= prompt_form.text_field :answer_choices,
                                   multiple: true,
-                                  value: prompt_form.object.answer_choices[i],
+                                  value: prompt_form.object.answer_choices ? prompt_form.object.answer_choices[i] : "",
                                   class: "form-control choice-text",
                                   placeholder: "Enter choice #{ltr}" %>
                           </div>
